@@ -15,6 +15,7 @@
 9:00pm - 9:30 : single threaded crawler (doesn't save url frontier)
 7:30pm - 8:01pm : read intro to celery ~ celery is a distributed task queue + uses DBs to relay messages + store results of tasks
 3:30 - 4:10pm : crawler that crawls a doc, and continuously finds neighbors and adds to redis queue.
+4:20 - 4:30pm : added config + basic testing
 
 ## The way it works:
 we have 4 key tasks:
