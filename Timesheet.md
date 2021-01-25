@@ -6,7 +6,6 @@
 - mercator style 
 - decent workflow and way to build on top of code
 - focus on modularity!!!
-
 - try not to cheat / use too many online sources in the spirit of this assignment
 
 
@@ -28,3 +27,4 @@ bc it uses memory resources
 - `pipenv` bs
 - figure out how to add to mongodb
 - bad workflow. find a way to be able to start everything all at once
+- use a celery config file

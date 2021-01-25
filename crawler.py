@@ -3,6 +3,9 @@ from bs4 import BeautifulSoup
 from collections import deque
 from pathlib import Path
 
+# Old version:
+# Single threaded crawler
+
 
 def main():
   # Path("./docs").mkdir(parents=True, exist_ok=True)

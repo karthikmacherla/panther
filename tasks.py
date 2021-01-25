@@ -1,11 +1,12 @@
 from celery import Celery
-import requests
 from bs4 import BeautifulSoup
 from collections import deque
 from pathlib import Path
+import celeryconfig
+import requests
 
-
-app = Celery('tasks', broker='amqp://localhost:5672')
+app = Celery('tasks')
+app.config_from_object('celeryconfig')
 
 # GOAL:
 # press start -> starts redis, mongodb, celery workers, adds a url to the space
@@ -34,5 +35,4 @@ def crawl(url):
     if not (currUrl[0:7] == "http://" or currUrl[0:8] == "https://"):  # if url is relative
       currUrl = base + currUrl
     crawl.delay(currUrl)
-
   return text
