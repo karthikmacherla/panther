@@ -1,12 +1,18 @@
+from kombu.serialization import register
 from celery import Celery
 from bs4 import BeautifulSoup
 from collections import deque
 from pathlib import Path
 import celeryconfig
 import requests
+import json
 
 app = Celery('tasks')
 app.config_from_object('celeryconfig')
+
+
+register('mongodb', lambda obj: obj, lambda obj: obj,
+         content_type='application/mongo-json', content_encoding='utf-8')
 
 # GOAL:
 # press start -> starts redis, mongodb, celery workers, adds a url to the space
@@ -18,7 +24,6 @@ def crawl(url):
   r = requests.get(url)
   base = r.url
 
-  # TODO: save it to a folder
   text = r.content
   print(base, text[0: min(len(text), 20)])
   print()
@@ -35,4 +40,5 @@ def crawl(url):
     if not (currUrl[0:7] == "http://" or currUrl[0:8] == "https://"):  # if url is relative
       currUrl = base + currUrl
     crawl.delay(currUrl)
-  return text
+
+  return {"url": base, "doc": str(text)}
