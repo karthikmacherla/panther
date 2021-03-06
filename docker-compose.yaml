@@ -23,7 +23,7 @@ services:
       - ./cache:/var/lib/rabbitmq
     
   mongodb:
-    container_name: monogdb
+    container_name: mongodb
     image: mongo
     ports:
       - "27017:27017"
@@ -44,10 +44,11 @@ services:
   monitor:
     build:
       context: ./src
-      dockerfile: monitor.dockerfile
     hostname: monitor
     ports:
       - "5555:5555"
+    entrypoint: flower
+    command: -A celery_app.celery --broker=amqp://guest:guest@rabbitmq:5672/  --address=0.0.0.0 --port=5555
     volumes:
       - ./src:/app
     links: 
