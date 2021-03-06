@@ -2,3 +2,5 @@ docs/
 .vscode/
 old_crawler.py
 Timesheet.md
+src/__pycache__
+db/

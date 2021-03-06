@@ -7,19 +7,20 @@ import celeryconfig
 import requests
 import json
 
-app = Celery('tasks')
-app.config_from_object('celeryconfig')
 
+celery = Celery('tasks')
+celery.config_from_object('celeryconfig')
 
 register('mongodb', lambda obj: obj, lambda obj: obj,
          content_type='application/mongo-json', content_encoding='utf-8')
 
-# GOAL:
-# press start -> starts redis, mongodb, celery workers, adds a url to the space
-# celery worker pops off url, crawls it, adds to mongodb, and adds neighbors to queue
+
+@celery.task
+def test():
+  return 5
 
 
-@app.task
+@celery.task
 def crawl(url):
   r = requests.get(url)
   base = r.url

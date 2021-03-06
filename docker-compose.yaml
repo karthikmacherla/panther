@@ -1,0 +1,54 @@
+version: "3"
+
+services:
+  web:
+    container_name: web
+    build: ./src
+    ports:
+      - "5000:5000"
+    links:
+      - rabbitmq
+    depends_on:
+      - rabbitmq
+    environment:
+      - FLASK_ENV=development
+    volumes:
+      - ./src:/app
+
+  rabbitmq:
+    container_name: rabbitmq
+    image: rabbitmq
+    hostname: rabbitmq
+    volumes: 
+      - ./cache:/var/lib/rabbitmq
+    
+  mongodb:
+    container_name: monogdb
+    image: mongo
+    ports:
+      - "27017:27017"
+    volumes: 
+      - ./db:/data/db
+
+  worker:
+    build:
+      context: ./src
+    hostname: worker
+    entrypoint: celery
+    command: -A celery_app.celery worker --loglevel=info
+    volumes:
+      - ./src:/app
+    links:
+      - rabbitmq
+  
+  monitor:
+    build:
+      context: ./src
+      dockerfile: monitor.dockerfile
+    hostname: monitor
+    ports:
+      - "5555:5555"
+    volumes:
+      - ./src:/app
+    links: 
+      - rabbitmq
