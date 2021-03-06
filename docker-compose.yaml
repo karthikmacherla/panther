@@ -3,7 +3,7 @@ version: "3"
 services:
   web:
     container_name: web
-    build: ./src
+    build: ./crawler
     ports:
       - "5000:5000"
     links:
@@ -13,8 +13,36 @@ services:
     environment:
       - FLASK_ENV=development
     volumes:
-      - ./src:/app
+      - ./crawler:/app
 
+  worker:
+    build:
+      context: ./crawler
+    hostname: worker
+    entrypoint: celery
+    command: -A celery_app.celery worker --loglevel=info
+    volumes:
+      - ./crawler:/app
+    links:
+      - rabbitmq
+    depends_on: 
+      - rabbitmq
+  
+  monitor:
+    build:
+      context: ./crawler
+    hostname: monitor
+    ports:
+      - "5555:5555"
+    entrypoint: flower
+    command: -A celery_app.celery --broker=amqp://guest:guest@rabbitmq:5672/  --address=0.0.0.0 --port=5555
+    volumes:
+      - ./crawler:/app
+    links: 
+      - rabbitmq
+    depends_on: 
+      - rabbitmq
+  
   rabbitmq:
     container_name: rabbitmq
     image: rabbitmq
@@ -30,26 +58,12 @@ services:
     volumes: 
       - ./db:/data/db
 
-  worker:
-    build:
-      context: ./src
-    hostname: worker
-    entrypoint: celery
-    command: -A celery_app.celery worker --loglevel=info
-    volumes:
-      - ./src:/app
-    links:
-      - rabbitmq
-  
-  monitor:
-    build:
-      context: ./src
-    hostname: monitor
+  mongo-express:
+    image: mongo-express
+    restart: always
     ports:
-      - "5555:5555"
-    entrypoint: flower
-    command: -A celery_app.celery --broker=amqp://guest:guest@rabbitmq:5672/  --address=0.0.0.0 --port=5555
-    volumes:
-      - ./src:/app
-    links: 
-      - rabbitmq
+      - "8081:8081"
+    environment: 
+      ME_CONFIG_MONGODB_SERVER: "mongodb"
+    depends_on: 
+      - mongodb
