@@ -1,0 +1,4 @@
+celery == 4.4.7
+pymongo == 3.11.3
+requests == 2.25.1
+beautifulsoup4 == 4.9.3

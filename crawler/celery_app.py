@@ -28,7 +28,11 @@ def crawl(url):
   text = r.content
   print(base, text[0: min(len(text), 20)])
   print()
+  parse.delay(base, str(text))
 
+
+@celery.task
+def parse(base, text):
   # parse doc here
   soup = BeautifulSoup(text, 'html.parser')
 
@@ -42,4 +46,4 @@ def crawl(url):
       currUrl = base + currUrl
     crawl.delay(currUrl)
 
-  return {"url": base, "doc": str(text)}
+  return {"url": base, "doc": text}

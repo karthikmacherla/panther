@@ -3,7 +3,9 @@ version: "3"
 services:
   web:
     container_name: web
-    build: ./crawler
+    build: 
+      context: ./crawler
+      dockerfile: web.dockerfile
     ports:
       - "5000:5000"
     links:
@@ -18,6 +20,7 @@ services:
   worker:
     build:
       context: ./crawler
+      dockerfile: worker.dockerfile
     hostname: worker
     entrypoint: celery
     command: -A celery_app.celery worker --loglevel=info
@@ -31,6 +34,7 @@ services:
   monitor:
     build:
       context: ./crawler
+      dockerfile: monitor.dockerfile
     hostname: monitor
     ports:
       - "5555:5555"
@@ -42,12 +46,14 @@ services:
       - rabbitmq
     depends_on: 
       - rabbitmq
+      - worker
   
   rabbitmq:
     container_name: rabbitmq
     image: rabbitmq
     hostname: rabbitmq
-    volumes: 
+    volumes:
+      - ./cache/log:/var/log/rabbitmq
       - ./cache:/var/lib/rabbitmq
     
   mongodb:
