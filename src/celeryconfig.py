@@ -9,5 +9,3 @@ mongodb_backend_settings = {
     'database': 'crawler',
     'taskmeta_collection': 'documents',
 }
-
-# CELERY_RESULT_SERIALIZER = 'mongodb'

@@ -5,3 +5,4 @@ Timesheet.md
 src/__pycache__
 db/
 */__pycache__
+cache/*

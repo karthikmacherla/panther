@@ -4,7 +4,7 @@ services:
   web:
     container_name: web
     build: 
-      context: ./crawler
+      context: ./src
       dockerfile: web.dockerfile
     ports:
       - "5000:5000"
@@ -15,17 +15,17 @@ services:
     environment:
       - FLASK_ENV=development
     volumes:
-      - ./crawler:/app
+      - ./src:/app
 
   worker:
     build:
-      context: ./crawler
+      context: ./src
       dockerfile: worker.dockerfile
     hostname: worker
     entrypoint: celery
     command: -A celery_app.celery worker --loglevel=info
     volumes:
-      - ./crawler:/app
+      - ./src:/app
     links:
       - rabbitmq
     depends_on: 
@@ -33,15 +33,15 @@ services:
   
   monitor:
     build:
-      context: ./crawler
+      context: ./src
       dockerfile: monitor.dockerfile
     hostname: monitor
     ports:
-      - "5555:5555"
+      - "5001:5001"
     entrypoint: flower
-    command: -A celery_app.celery --broker=amqp://guest:guest@rabbitmq:5672/  --address=0.0.0.0 --port=5555
+    command: -A celery_app.celery --broker=amqp://guest:guest@rabbitmq:5672/  --address=0.0.0.0 --port=5001
     volumes:
-      - ./crawler:/app
+      - ./src:/app
     links: 
       - rabbitmq
     depends_on: 
@@ -68,7 +68,7 @@ services:
     image: mongo-express
     restart: always
     ports:
-      - "8081:8081"
+      - "5002:8081"
     environment: 
       ME_CONFIG_MONGODB_SERVER: "mongodb"
     depends_on: 
