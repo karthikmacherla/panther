@@ -47,7 +47,9 @@ def get_robot(domain):
   if res is not None:
     return res
 
-  r = requests.get(domain)
+  robot_url = domain + "/robots.txt"
+  r = requests.get(robot_url)
+  status = r.status_code
   rob_text = r.content
 
   allowed_links = {}
@@ -57,24 +59,25 @@ def get_robot(domain):
 
   curr_user_agents = []
   lastaccessedtime = dt.datetime.now()
-  for line in rob_text.splitlines():
-    if line.startswith("#"):
-      continue
-    elif line.strip() == "":
-      curr_user_agents = []
-    elif line.startswith("User-agent:"):
-      curr_agent = line.split(":")[1]
-      curr_user_agents.append(curr_agent)
-      user_agents.append(curr_agent)
-    elif line.startswith("Disallow:"):
-      for agent in curr_user_agents:
-        disallowed_links[agent] = line.split(":")[1]
-    elif line.startswith("Allow:"):
-      for agent in curr_user_agents:
-        allowed_links[agent] = line.split(":")[1]
-    elif line.startswith("Crawl-delay:"):
-      for agent in curr_user_agents:
-        crawl_delays[agent] = line.split(":")[1]
+  if status == 200:
+    for line in rob_text.splitlines():
+      if line.startswith("#"):
+        continue
+      elif line.strip() == "":
+        curr_user_agents = []
+      elif line.startswith("User-agent:"):
+        curr_agent = line.split(":")[1]
+        curr_user_agents.append(curr_agent)
+        user_agents.append(curr_agent)
+      elif line.startswith("Disallow:"):
+        for agent in curr_user_agents:
+          disallowed_links[agent] = line.split(":")[1]
+      elif line.startswith("Allow:"):
+        for agent in curr_user_agents:
+          allowed_links[agent] = line.split(":")[1]
+      elif line.startswith("Crawl-delay:"):
+        for agent in curr_user_agents:
+          crawl_delays[agent] = line.split(":")[1]
   robot = {
       "allowed_links": allowed_links,
       "disallowed_links": disallowed_links,
@@ -82,8 +85,9 @@ def get_robot(domain):
       "last_accessed_time": lastaccessedtime,
       "domain": domain
   }
-
   robot_store.insert(robot)
+  # create invariant that None == just fetched
+  del robot["last_access_time"]
   return robot
 
 
@@ -123,6 +127,7 @@ def fetch_doc(url):
     text = str(get_req.content)
     should_save = True
 
+  # update the robots.txt
   parse.delay(url, text, should_save)
 
 
