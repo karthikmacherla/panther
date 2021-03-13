@@ -41,12 +41,13 @@ def check_robots(url):
   domain = urlparse(url).netloc
   # try getting robots.txt from database
   robot = get_robot(domain)
-  if robot_allows_crawl(robot, url):
-    print("Fetching doc for: ", url)
-    fetch_doc.delay(url, str(robot["_id"]))
-  elif delay_crawl(robot):
+
+  if delay_crawl(robot):
     print("Delaying crawl for: ", url)
     pop_from_queue.delay(url)
+  elif robot_allows_crawl(robot, url):
+    print("Fetching doc for: ", url)
+    fetch_doc.delay(url, str(robot["_id"]))
   else:
     print("Not crawling: ", url)
 
