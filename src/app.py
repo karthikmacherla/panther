@@ -1,6 +1,6 @@
 from flask import Flask, request
 from flask import render_template
-from celery_app import crawl, test
+from celery_app import pop_from_queue
 
 app = Flask(__name__)
 
@@ -14,7 +14,7 @@ def home_page():
 def crawl_url():
   if request and request.form["url"] != "":
     url = request.form["url"]
-    crawl.delay(url)
+    pop_from_queue.delay(url)
   return "OK"
 
 
