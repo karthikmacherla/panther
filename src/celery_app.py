@@ -37,6 +37,11 @@ def pop_from_queue(url):
 
 @celery.task
 def check_robots(url):
+  """
+    Initial filter for urls to crawl
+    - Checks if the url can be crawled and if it's a good time to crawl the url
+    i.e. crawl delays
+  """
   # extract site domain
   domain = urlparse(url).netloc
   # try getting robots.txt from database
