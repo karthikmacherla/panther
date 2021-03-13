@@ -26,11 +26,6 @@ celery.config_from_object('celeryconfig')
 
 
 @celery.task
-def test():
-  return 5
-
-
-@celery.task
 def pop_from_queue(url):
   check_robots.delay(url)
 
